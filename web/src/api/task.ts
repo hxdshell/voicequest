@@ -1,4 +1,4 @@
-import { API_URL } from '.'
+import { client } from '.'
 
 // --- Types based on your API response ---
 export interface Task {
@@ -18,54 +18,26 @@ interface ApiResponse<T> {
   data: T
 }
 
-const TASK_URL = `${API_URL}/tasks`
-
-async function request<T>(path: string, options: RequestInit = {}): Promise<T> {
-  const token = localStorage.getItem('token')
-
-  const res = await fetch(`${TASK_URL}${path}`, {
-    ...options,
-    headers: {
-      'Content-Type': 'application/json',
-      ...(token ? { Authorization: `Bearer ${token}` } : {}),
-      ...(options.headers || {}),
-    },
-  })
-
-  const data = await res.json()
-
-  if (!res.ok) {
-    throw new Error(data?.message || 'Request failed')
-  }
-
-  return data
-}
-
 export const taskService = {
   getAll: async () => {
-    const res = await request<ApiResponse<Task[]>>('/')
+    const res = await client.get<ApiResponse<Task[]>>('/tasks')
     return res.data
   },
 
   create: async (task: Partial<Task>) => {
-    const res = await request<ApiResponse<Task>>('/', {
-      method: 'POST',
-      body: JSON.stringify(task),
-    })
+    const res = await client.post<ApiResponse<Task>>('/tasks/create', task)
     return res.data
   },
 
   update: async (id: number, updates: Partial<Task>) => {
-    const res = await request<ApiResponse<Task>>(`/${id}`, {
-      method: 'PATCH',
-      body: JSON.stringify(updates),
-    })
+    const res = await client.patch<ApiResponse<Task>>(
+      `/tasks/edit/${id}`,
+      updates,
+    )
     return res.data
   },
 
   delete: async (id: number) => {
-    return request<ApiResponse<any>>(`/${id}`, {
-      method: 'DELETE',
-    })
+    return client.delete<ApiResponse<any>>(`/tasks/delete/${id}`)
   },
 }

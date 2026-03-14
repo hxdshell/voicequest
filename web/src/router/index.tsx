@@ -3,10 +3,12 @@ import {
   createRoute,
   createRouter,
   Outlet,
+  redirect,
 } from '@tanstack/react-router'
 import Layout from '../pages/Layout'
 import HomePage from '../pages/HomePage'
 import AuthPage from '../pages/AuthPage'
+import { isAuthenticated } from '../api'
 
 const rootRoute = createRootRoute({
   component: Outlet,
@@ -20,6 +22,13 @@ export const appRoute = createRoute({
 const indexRoute = createRoute({
   getParentRoute: () => appRoute,
   path: '/',
+  beforeLoad: () => {
+    if (!isAuthenticated()) {
+      throw redirect({
+        to: '/auth',
+      })
+    }
+  },
   component: HomePage,
 })
 

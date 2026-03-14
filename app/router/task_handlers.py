@@ -1,5 +1,5 @@
 from click import File
-from fastapi import HTTPException, Request,Depends, UploadFile
+from fastapi import Request,Depends, UploadFile
 from fastapi.responses import JSONResponse
 from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 

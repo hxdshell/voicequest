@@ -17,6 +17,7 @@ import {
 import { Plus, Pencil, Trash2 } from 'lucide-react'
 import { taskService, type Task } from '../api/task'
 import Mic from '../components/app/Mic'
+import { useNavigate } from '@tanstack/react-router'
 
 export default function HomePage() {
   const [tasks, setTasks] = useState<Task[]>([])
@@ -29,8 +30,13 @@ export default function HomePage() {
   const [formData, setFormData] = useState({
     title: '',
   })
+  const navigate = useNavigate()
 
   useEffect(() => {
+    if (!localStorage.getItem('token')) {
+      navigate({ to: 'auth', replace: true })
+    }
+
     taskService
       .getAll()
       .then(setTasks)

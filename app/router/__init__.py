@@ -1,5 +1,4 @@
-from fastapi import APIRouter
-from h11 import Request
+from fastapi import APIRouter, Request
 
 from app.services.eleven import ElevenClient
 

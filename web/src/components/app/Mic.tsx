@@ -1,5 +1,6 @@
 import { useRef, useState } from 'react'
 import { API_URL } from '../../api'
+import { useNavigate } from '@tanstack/react-router'
 
 type RecordingState = 'idle' | 'recording' | 'sending' | 'success' | 'error'
 
@@ -16,6 +17,7 @@ export default function Mic() {
   const chunksRef = useRef<Blob[]>([])
   const streamRef = useRef<MediaStream | null>(null)
   const [state, setState] = useState<RecordingState>('idle')
+  const navigate = useNavigate()
 
   const startRecording = async () => {
     try {
@@ -47,7 +49,13 @@ export default function Mic() {
             body: form,
           })
 
-          if (!res.ok) throw new Error(`Server error: ${res.status}`)
+          if (!res.ok) {
+            if (res.status === 401) {
+              navigate({ to: '/auth', replace: true })
+            } else {
+              throw new Error(`Server error: ${res.status}`)
+            }
+          }
 
           setState('success')
         } catch {
