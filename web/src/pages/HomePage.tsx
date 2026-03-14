@@ -11,9 +11,12 @@ import {
   Text,
   Center,
   Spinner,
+  Portal,
+  Box,
 } from '@chakra-ui/react'
 import { Plus, Pencil, Trash2 } from 'lucide-react'
 import { taskService, type Task } from '../api/task'
+import Mic from '../components/app/Mic'
 
 export default function HomePage() {
   const [tasks, setTasks] = useState<Task[]>([])
@@ -35,7 +38,6 @@ export default function HomePage() {
   }, [])
 
   const memoizedTasks = useMemo(() => {
-    // You can also add sorting logic here: tasks.sort((a,b) => ...)
     return tasks
   }, [tasks])
 
@@ -85,91 +87,111 @@ export default function HomePage() {
     )
   return (
     <Stack gap="6" p="8" maxWidth="1000px" mx="auto">
+      <Box padding={'1rem'}>
+        <Mic />
+      </Box>
       <HStack justify="space-between">
-        <Text fontSize="2xl" fontWeight="bold">
-          Task Manager
+        <Text fontSize="xl" fontWeight="bold">
+          Task Log
         </Text>
         <Dialog.Root
           open={isAddOpen}
           onOpenChange={(e) => setIsAddOpen(e.open)}
         >
           <Dialog.Trigger asChild>
-            <Button colorPalette="blue" variant="solid">
-              <Plus size={16} style={{ marginRight: '8px' }} /> Add Task
+            <Button size="sm" p={2} variant="solid">
+              <Plus size={10} style={{ marginRight: '1px' }} /> Add Task
             </Button>
           </Dialog.Trigger>
-          <Dialog.Backdrop />
-          <Dialog.Positioner>
-            <Dialog.Content>
-              <Dialog.Header>
-                <Dialog.Title>Create New Task</Dialog.Title>
-              </Dialog.Header>
-              <Dialog.Body>
-                <Stack gap="4">
-                  <Field.Root>
-                    <Field.Label>Task Title</Field.Label>
-                    <Input
-                      placeholder="What needs to be done?"
-                      value={formData.title}
-                      onChange={(e) =>
-                        setFormData({ ...formData, title: e.target.value })
-                      }
-                    />
-                  </Field.Root>
-                </Stack>
-              </Dialog.Body>
-              <Dialog.Footer>
-                <Dialog.CloseTrigger asChild>
-                  <Button variant="outline">Cancel</Button>
-                </Dialog.CloseTrigger>
-                <Button onClick={handleAddTask} colorPalette="blue">
-                  Save Task
-                </Button>
-              </Dialog.Footer>
-            </Dialog.Content>
-          </Dialog.Positioner>
+          <Portal>
+            <Dialog.Backdrop />
+            <Dialog.Positioner>
+              <Dialog.Content>
+                <Dialog.Header>
+                  <Dialog.Title>Create New Task</Dialog.Title>
+                </Dialog.Header>
+                <Dialog.Body>
+                  <Stack gap="4">
+                    <Field.Root>
+                      <Field.Label>Task Title</Field.Label>
+                      <Input
+                        placeholder="What needs to be done?"
+                        value={formData.title}
+                        onChange={(e) =>
+                          setFormData({ ...formData, title: e.target.value })
+                        }
+                      />
+                    </Field.Root>
+                  </Stack>
+                </Dialog.Body>
+                <Dialog.Footer>
+                  <Dialog.CloseTrigger asChild>
+                    <Button variant="outline">Cancel</Button>
+                  </Dialog.CloseTrigger>
+                  <Button onClick={handleAddTask} colorPalette="blue">
+                    Save Task
+                  </Button>
+                </Dialog.Footer>
+              </Dialog.Content>
+            </Dialog.Positioner>
+          </Portal>
         </Dialog.Root>
       </HStack>
 
-      <Table.ScrollArea borderWidth="1px" borderRadius="md">
-        <Table.Root variant="line" interactive>
-          <Table.Header>
-            <Table.Row bg="bg.subtle">
-              <Table.ColumnHeader>ID</Table.ColumnHeader>
-              <Table.ColumnHeader>Name</Table.ColumnHeader>
-              <Table.ColumnHeader>Status</Table.ColumnHeader>
-              <Table.ColumnHeader textAlign="end">Due Date</Table.ColumnHeader>
+      <Table.ScrollArea>
+        <Table.Root size="sm" interactive>
+          <Table.Header p="1rem" bg="red">
+            <Table.Row bg="bg.subtle" fontWeight={'bold'} fontSize={'md'}>
+              <Table.ColumnHeader p={2} color="purple.500">
+                ID
+              </Table.ColumnHeader>
+              <Table.ColumnHeader p={2} color="purple.500">
+                Name
+              </Table.ColumnHeader>
+              <Table.ColumnHeader p={2} color="purple.500">
+                Status
+              </Table.ColumnHeader>
+              <Table.ColumnHeader p={2} color="purple.500">
+                Due Date
+              </Table.ColumnHeader>
+              <Table.ColumnHeader p={2} color="purple.500">
+                Edit
+              </Table.ColumnHeader>
+              <Table.ColumnHeader p={2} color="purple.500">
+                Delete
+              </Table.ColumnHeader>
             </Table.Row>
           </Table.Header>
           <Table.Body>
             {memoizedTasks.map((task) => (
               <Table.Row key={task.id}>
-                <Table.Cell>{task.id}</Table.Cell>
-                <Table.Cell fontWeight="medium">{task.title}</Table.Cell>
-                <Table.Cell>{task.status}</Table.Cell>
-                <Table.Cell textAlign="end">
-                  <HStack justify="flex-end" gap="2">
-                    <IconButton
-                      variant="ghost"
-                      size="sm"
-                      onClick={() => {
-                        setEditingTask(task)
-                        setFormData({
-                          title: task.title,
-                        })
-                      }}
-                    >
-                      <Pencil size={16} />
-                    </IconButton>
-                    <IconButton
-                      variant="ghost"
-                      size="sm"
-                      colorPalette="red"
-                      // onClick={() => setDeletingTaskId(task.id)}
-                    >
-                      <Trash2 size={16} />
-                    </IconButton>
-                  </HStack>
+                <Table.Cell p={2}>{task.id}</Table.Cell>
+                <Table.Cell p={2}>{task.title}</Table.Cell>
+                <Table.Cell p={2}>{task.status}</Table.Cell>
+                <Table.Cell p={2}>{task.due_date}</Table.Cell>
+                <Table.Cell p={2}>
+                  <IconButton
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => {
+                      setEditingTask(task)
+                      setFormData({
+                        title: task.title,
+                      })
+                    }}
+                  >
+                    <Pencil size={16} />
+                  </IconButton>
+                </Table.Cell>
+                <Table.Cell p={2}>
+                  <IconButton
+                    variant="ghost"
+                    size="sm"
+                    colorPalette="red"
+                    // onClick={() => setDeletingTaskId(task.id)}
+                  >
+                    <Trash2 size={16} />
+                  </IconButton>
                 </Table.Cell>
               </Table.Row>
             ))}

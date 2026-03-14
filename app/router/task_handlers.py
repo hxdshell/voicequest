@@ -1,14 +1,34 @@
-from fastapi import Request,Depends
+from click import File
+from fastapi import HTTPException, Request,Depends, UploadFile
 from fastapi.responses import JSONResponse
 from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 
 from app.schema.schema import APIResponse, TaskCreate
+from app.services.eleven import ElevenClient
 from app.services.task_service import TaskService
-from . import router
+from . import get_eleven_client, router
 from app.db.sqlite import SessionDep
 
 # Just for documentation
 auth_scheme = HTTPBearer()
+
+@router.post("/voice")
+async def transcribe_user_intent(audio: UploadFile = File(...), client: ElevenClient = Depends(get_eleven_client)):
+    if not audio.content_type or not audio.content_type.startswith("audio/"):
+        return JSONResponse(status_code=400, content={
+            "message": "invalid file format",
+            "data": None
+        })
+
+    try:
+        transcription = client.transcribe(audio)
+        return APIResponse(message="transcription successful", data={"transcription": transcription.text})
+
+    except Exception as e:
+        return JSONResponse(status_code=400, content={
+            "message": "unable to transcribe. please try again.",
+            "data": None
+        })
 
 @router.get("/tasks")
 async def get_all_tasks(request:Request, session: SessionDep, token: HTTPAuthorizationCredentials = Depends(auth_scheme)):

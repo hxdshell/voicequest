@@ -1,3 +1,4 @@
+
 from sqlmodel import Session
 from app.repo.task_repo import TaskRepo
 from app.db.models import Task
@@ -8,7 +9,6 @@ class TaskService:
     def __init__(self, session: Session):
         self.repo = TaskRepo(session)
         
-
     def create_task(self,user_id: int, data: TaskCreate) -> Task:
         user = Task(user_id=user_id, 
                     title=data.title, 

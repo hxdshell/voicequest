@@ -1,3 +1,5 @@
+import { API_URL } from '.'
+
 // --- Types based on your API response ---
 export interface Task {
   id: number
@@ -16,12 +18,12 @@ interface ApiResponse<T> {
   data: T
 }
 
-const BASE_URL = 'http://localhost:8000/api/tasks'
+const TASK_URL = `${API_URL}/tasks`
 
 async function request<T>(path: string, options: RequestInit = {}): Promise<T> {
   const token = localStorage.getItem('token')
 
-  const res = await fetch(`${BASE_URL}${path}`, {
+  const res = await fetch(`${TASK_URL}${path}`, {
     ...options,
     headers: {
       'Content-Type': 'application/json',
