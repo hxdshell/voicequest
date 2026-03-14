@@ -6,7 +6,7 @@ from sqlalchemy.exc import NoResultFound
 from . import router
 
 @router.post("/users/create")
-def create_user(user: UserCreate, session: SessionDep):
+async def create_user(user: UserCreate, session: SessionDep):
     service = UserService(session=session)
     try:
         resp_user = service.create_user(user)
@@ -18,7 +18,7 @@ def create_user(user: UserCreate, session: SessionDep):
         })
     
 @router.post("/login")
-def create_user(user: UserCreate, session: SessionDep):
+async def login(user: UserCreate, session: SessionDep):
     service = UserService(session=session)
     try:
         token = service.login(user)

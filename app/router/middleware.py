@@ -12,6 +12,9 @@ class AuthMiddleware(BaseHTTPMiddleware):
             "/api/users/create",
         }
 
+        if request.method == "OPTIONS":
+            return await call_next(request)
+
         # only protect /api routes
         if not request.url.path.startswith("/api"):
             return await call_next(request)

@@ -1,10 +1,26 @@
-from typing import Annotated
+from sqlmodel import Field, SQLModel
+from datetime import datetime,UTC
+from enum import Enum
 
-from fastapi import Depends, FastAPI, HTTPException, Query
-from sqlmodel import Field, Session, SQLModel, create_engine, select
+class Status(str, Enum):
+    STATUS_PENDING = 0
+    STATUS_DELAYED = 1
+    STATUS_COMPLETED = 2
+    STATUS_CANCELLED = 3
 
 
 class User(SQLModel, table=True):
-    id: int | None = Field(default=None, primary_key=True)
+    id: int = Field(primary_key=True)
     email: str = Field(nullable=False, unique=True)
     password: str = Field(nullable=False)
+
+class Task(SQLModel, table=True):
+    id: int = Field(primary_key=True)
+    user_id: int = Field(foreign_key="user.id")
+    title: str = Field(nullable= False)
+    description: str | None = Field(nullable=True)
+    due_date: datetime = Field(nullable=False)
+    original_tz: str = Field(nullable=False)
+    status: Status = Field(default=Status.STATUS_PENDING, nullable=False)
+    times_dealyed: int = Field(default=0,nullable=False)
+    created_at: datetime = Field(default_factory=lambda: datetime.now(UTC))
