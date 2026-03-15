@@ -13,7 +13,7 @@ from app.db.sqlite import SessionDep
 auth_scheme = HTTPBearer()
 
 @router.post("/voice")
-async def transcribe_user_intent(audio: UploadFile = File(...), client: ModelClient = Depends(get_model_client)):
+async def handle_voice_task(request: Request,session: SessionDep , audio: UploadFile = File(...), client: ModelClient = Depends(get_model_client)):
     if not audio.content_type or not audio.content_type.startswith("audio/"):
         return JSONResponse(status_code=400, content={
             "message": "invalid file format",
@@ -21,14 +21,29 @@ async def transcribe_user_intent(audio: UploadFile = File(...), client: ModelCli
         })
 
     try:
-        transcription = client.transcribe(audio)
-        return APIResponse(message="transcription successful", data={"transcription": transcription.text})
-
+        transcription = client.transcribe(audio=audio)
+        intent = client.parse_transcription(transcription.text)
     except Exception as e:
         return JSONResponse(status_code=400, content={
-            "message": "unable to transcribe. please try again.",
+            "message": str(e),
             "data": None
         })
+
+    try:
+        service = TaskService(session=session)
+        result = service.handle_intent(user_id=request.state.user_id, intent=intent)
+    except ValueError as e:
+        return JSONResponse(status_code=400, content={
+            "message": str(e),
+            "data": None
+        })
+
+    return APIResponse(message="success", data = {
+        "transcription": transcription.text,
+        "parsed_intent": intent.model_dump(),
+        "result": result,
+    })
+    
 
 @router.get("/tasks")
 async def get_all_tasks(request:Request, session: SessionDep, token: HTTPAuthorizationCredentials = Depends(auth_scheme)):
@@ -49,7 +64,6 @@ async def create_task(
     session: SessionDep,
     token: HTTPAuthorizationCredentials = Depends(auth_scheme),
 ):
-    print(task)
     service = TaskService(session=session)
     try:
         resp_task = service.create_task(request.state.user_id,task)

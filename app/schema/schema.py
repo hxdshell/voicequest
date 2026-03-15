@@ -58,7 +58,7 @@ class TaskIntent(BaseModel):
     task_keyword: str = Field(
         description="A noun phrase or keyword extracted from the transcription that identifies the task. Used for database search."
     )
-    datentime: Optional[datetime] = Field(
+    date_time: Optional[datetime] = Field(
         default=None,
         description="Date and time mentioned by the user. Only relevant for create_task and delay_task. Null otherwise."
     )

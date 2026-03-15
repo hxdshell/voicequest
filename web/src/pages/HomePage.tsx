@@ -58,7 +58,7 @@ export default function HomePage() {
   return (
     <Stack gap="6" p="8" maxWidth="1000px" mx="auto">
       <Box padding={'1rem'}>
-        <Mic />
+        <Mic setRefresh={setRefresh} />
       </Box>
       <HStack justify="space-between">
         <Text fontSize="xl" fontWeight="bold">

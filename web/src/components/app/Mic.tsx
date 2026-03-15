@@ -1,6 +1,7 @@
 import { useRef, useState } from 'react'
 import { API_URL } from '../../api'
 import { useNavigate } from '@tanstack/react-router'
+import { toaster } from '../ui/toaster'
 
 type RecordingState = 'idle' | 'recording' | 'sending' | 'success' | 'error'
 
@@ -12,7 +13,11 @@ const STATE_LABELS: Record<RecordingState, string> = {
   error: 'Failed — try again',
 }
 
-export default function Mic() {
+export default function Mic({
+  setRefresh,
+}: {
+  setRefresh: React.Dispatch<React.SetStateAction<boolean>>
+}) {
   const mediaRecorderRef = useRef<MediaRecorder | null>(null)
   const chunksRef = useRef<Blob[]>([])
   const streamRef = useRef<MediaStream | null>(null)
@@ -49,17 +54,34 @@ export default function Mic() {
             body: form,
           })
 
-          if (!res.ok) {
-            if (res.status === 401) {
-              navigate({ to: '/auth', replace: true })
-            } else {
-              throw new Error(`Server error: ${res.status}`)
-            }
+          setState('success')
+          const data = await res.json()
+          if (res.status === 401) {
+            navigate({ to: '/auth', replace: true })
           }
 
-          setState('success')
-        } catch {
+          if (!res.ok) {
+            if (data) {
+              if (data.message) {
+                throw new Error(data.message)
+              }
+            } else throw new Error('Error. Try again')
+          }
+          toaster.create({
+            title: `${data.data.parsed_intent.intent} successful`,
+            closable: true,
+            type: 'success',
+          })
+          setRefresh((val) => !val)
+        } catch (err) {
           setState('error')
+          if (err instanceof Error) {
+            toaster.create({
+              title: err.message,
+              closable: true,
+              type: 'error',
+            })
+          }
         } finally {
           streamRef.current?.getTracks().forEach((t) => t.stop())
           setTimeout(() => setState('idle'), 2200)

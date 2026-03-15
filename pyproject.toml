@@ -7,10 +7,10 @@ requires-python = ">=3.13"
 dependencies = [
     "elevenlabs>=2.39.0",
     "fastapi[standard]>=0.135.1",
+    "mistralai>=2.0.2",
     "pwdlib[argon2]>=0.3.0",
     "pyjwt>=2.12.0",
     "python-dotenv>=1.2.2",
     "sqlmodel>=0.0.37",
     "uvicorn>=0.41.0",
-    "google-genai>=1.67.0",
 ]

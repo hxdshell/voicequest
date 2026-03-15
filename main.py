@@ -16,12 +16,12 @@ async def lifespan(app: FastAPI):
     # -- startup --
     load_dotenv()
     create_db_and_tables()
-    app.state.model_client = ModelClient(eleven_api_key=os.getenv("ELEVENLABS_API_KEY"), google_api_key=os.getenv("GOOGLE_API_KEY"))
+    app.state.model_client = ModelClient(eleven_api_key=os.getenv("ELEVENLABS_API_KEY"), llm_api_key=os.getenv("MISTRAL_API_KEY"))
 
     yield
 
     # -- shutdown --
-    app.state.model_client.close()
+    print("shutting down...")
 
 app = FastAPI(lifespan=lifespan)
 
