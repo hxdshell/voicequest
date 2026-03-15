@@ -11,20 +11,20 @@ import {
   Text,
   Center,
   Spinner,
-  Portal,
   Box,
 } from '@chakra-ui/react'
-import { Plus, Pencil, Trash2 } from 'lucide-react'
+import { Pencil, Trash2 } from 'lucide-react'
 import { taskService, type Task } from '../api/task'
 import Mic from '../components/app/Mic'
 import { useNavigate } from '@tanstack/react-router'
+import CreateTask from '../components/app/CreateTask'
 
 export default function HomePage() {
   const [tasks, setTasks] = useState<Task[]>([])
   const [loading, setLoading] = useState(true)
+  const [refresh, setRefresh] = useState(false)
 
   // Dialog/Form States
-  const [isAddOpen, setIsAddOpen] = useState(false)
   const [editingTask, setEditingTask] = useState<Task | null>(null)
   const [deletingTaskId, setDeletingTaskId] = useState<string | null>(null)
   const [formData, setFormData] = useState({
@@ -41,49 +41,13 @@ export default function HomePage() {
       .getAll()
       .then(setTasks)
       .finally(() => setLoading(false))
-  }, [])
+  }, [refresh])
 
   const memoizedTasks = useMemo(() => {
     return tasks
-  }, [tasks])
+  }, [tasks, refresh])
 
-  const handleAddTask = async () => {
-    try {
-      // API CALL
-      const newTask = await taskService.create({ ...formData, status: 'Todo' })
-      setTasks((prev) => [...prev, newTask])
-      setIsAddOpen(false)
-      setFormData({ title: '' })
-    } catch (err) {
-      console.error('Failed to create', err)
-    }
-  }
-
-  const handleUpdateTask = async () => {
-    if (!editingTask) return
-    try {
-      // API CALL
-      const updated = await taskService.update(editingTask.id, formData)
-      setTasks((prev) =>
-        prev.map((t) => (t.id === editingTask.id ? updated : t)),
-      )
-      setEditingTask(null)
-    } catch (err) {
-      console.error('Failed to update', err)
-    }
-  }
-
-  // const handleDeleteTask = async () => {
-  //   if (!deletingTaskId) return
-  //   try {
-  //     // API CALL
-  //     await taskService.delete(deletingTaskId)
-  //     setTasks((prev) => prev.filter((t) => t.id !== deletingTaskId))
-  //     setDeletingTaskId(null)
-  //   } catch (err) {
-  //     console.error('Failed to delete', err)
-  //   }
-  // }
+  const handleUpdateTask = async () => {}
 
   if (loading)
     return (
@@ -100,52 +64,11 @@ export default function HomePage() {
         <Text fontSize="xl" fontWeight="bold">
           Task Log
         </Text>
-        <Dialog.Root
-          open={isAddOpen}
-          onOpenChange={(e) => setIsAddOpen(e.open)}
-        >
-          <Dialog.Trigger asChild>
-            <Button size="sm" p={2} variant="solid">
-              <Plus size={10} style={{ marginRight: '1px' }} /> Add Task
-            </Button>
-          </Dialog.Trigger>
-          <Portal>
-            <Dialog.Backdrop />
-            <Dialog.Positioner>
-              <Dialog.Content>
-                <Dialog.Header>
-                  <Dialog.Title>Create New Task</Dialog.Title>
-                </Dialog.Header>
-                <Dialog.Body>
-                  <Stack gap="4">
-                    <Field.Root>
-                      <Field.Label>Task Title</Field.Label>
-                      <Input
-                        placeholder="What needs to be done?"
-                        value={formData.title}
-                        onChange={(e) =>
-                          setFormData({ ...formData, title: e.target.value })
-                        }
-                      />
-                    </Field.Root>
-                  </Stack>
-                </Dialog.Body>
-                <Dialog.Footer>
-                  <Dialog.CloseTrigger asChild>
-                    <Button variant="outline">Cancel</Button>
-                  </Dialog.CloseTrigger>
-                  <Button onClick={handleAddTask} colorPalette="blue">
-                    Save Task
-                  </Button>
-                </Dialog.Footer>
-              </Dialog.Content>
-            </Dialog.Positioner>
-          </Portal>
-        </Dialog.Root>
+        <CreateTask setRefresh={setRefresh} />
       </HStack>
 
-      <Table.ScrollArea>
-        <Table.Root size="sm" interactive>
+      <Table.ScrollArea borderWidth={'1px'} height="260px">
+        <Table.Root size="sm" interactive stickyHeader>
           <Table.Header p="1rem" bg="red">
             <Table.Row bg="bg.subtle" fontWeight={'bold'} fontSize={'md'}>
               <Table.ColumnHeader p={2} color="purple.500">

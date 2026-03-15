@@ -1,3 +1,4 @@
+from contextlib import asynccontextmanager
 import os
 
 from fastapi import FastAPI, Request
@@ -7,16 +8,22 @@ from dotenv import load_dotenv
 from app.router.middleware import AuthMiddleware
 from fastapi.middleware.cors import CORSMiddleware
 
-from app.services.eleven import ElevenClient
+from app.services.model_client import ModelClient
 
-app = FastAPI()
 
-@app.on_event("startup")
-def on_startup():
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    # -- startup --
     load_dotenv()
     create_db_and_tables()
-    app.state.eleven_client = ElevenClient(api_key=os.getenv("ELEVENLABS_API_KEY"))
+    app.state.model_client = ModelClient(eleven_api_key=os.getenv("ELEVENLABS_API_KEY"), google_api_key=os.getenv("GOOGLE_API_KEY"))
 
+    yield
+
+    # -- shutdown --
+    app.state.model_client.close()
+
+app = FastAPI(lifespan=lifespan)
 
 
 app.include_router(router)

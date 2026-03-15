@@ -24,7 +24,7 @@ export const taskService = {
     return res.data
   },
 
-  create: async (task: Partial<Task>) => {
+  create: async (task: { title: string; due_date: string | null }) => {
     const res = await client.post<ApiResponse<Task>>('/tasks/create', task)
     return res.data
   },

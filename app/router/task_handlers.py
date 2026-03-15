@@ -4,16 +4,16 @@ from fastapi.responses import JSONResponse
 from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 
 from app.schema.schema import APIResponse, TaskCreate
-from app.services.eleven import ElevenClient
+from app.services.model_client import ModelClient
 from app.services.task_service import TaskService
-from . import get_eleven_client, router
+from . import get_model_client, router
 from app.db.sqlite import SessionDep
 
 # Just for documentation
 auth_scheme = HTTPBearer()
 
 @router.post("/voice")
-async def transcribe_user_intent(audio: UploadFile = File(...), client: ElevenClient = Depends(get_eleven_client)):
+async def transcribe_user_intent(audio: UploadFile = File(...), client: ModelClient = Depends(get_model_client)):
     if not audio.content_type or not audio.content_type.startswith("audio/"):
         return JSONResponse(status_code=400, content={
             "message": "invalid file format",
@@ -43,7 +43,13 @@ async def get_all_tasks(request:Request, session: SessionDep, token: HTTPAuthori
         })
 
 @router.post("/tasks/create")
-async def create_task(request:Request,task: TaskCreate, session: SessionDep, token: HTTPAuthorizationCredentials = Depends(auth_scheme)):
+async def create_task(
+    request: Request,
+    task: TaskCreate,
+    session: SessionDep,
+    token: HTTPAuthorizationCredentials = Depends(auth_scheme),
+):
+    print(task)
     service = TaskService(session=session)
     try:
         resp_task = service.create_task(request.state.user_id,task)

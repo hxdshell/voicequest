@@ -42,6 +42,7 @@ class APIClient {
   }
 
   post<T>(url: string, data?: unknown, config?: RequestInit) {
+    console.log(data)
     return this.request<T>(url, {
       ...config,
       method: 'POST',
