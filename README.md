@@ -16,7 +16,7 @@
 ```env
 # JWT Secret — generate with:
 # openssl rand -hex 32
-JWT_SECRET=your_generated_secret_here
+SECRET_KEY=your_generated_secret_here
 
 # Mistral AI API Key
 # Get it from: https://console.mistral.ai/api-keys
