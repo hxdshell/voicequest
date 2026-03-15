@@ -1,3 +1,4 @@
+from sqlalchemy import DateTime
 from sqlmodel import Field, SQLModel
 from datetime import datetime,UTC
 from enum import Enum
@@ -19,7 +20,7 @@ class Task(SQLModel, table=True):
     user_id: int = Field(foreign_key="user.id")
     title: str = Field(nullable= False)
     description: str | None = Field(nullable=True)
-    due_date: datetime = Field(nullable=False)
+    due_date: str = Field(nullable=False)
     original_tz: str = Field(nullable=False)
     status: Status = Field(default=Status.STATUS_PENDING, nullable=False)
     times_dealyed: int = Field(default=0,nullable=False)

@@ -46,7 +46,7 @@ class TaskRepo:
     def delay_task(self, task: Task, new_due_date: datetime) -> Task:
         if new_due_date <= datetime.now(timezone.utc):
             raise ValueError("New due date must be in the future")
-        task.due_date = new_due_date
+        task.due_date = new_due_date.strftime("%Y-%m-%d %H:%M")
         task.status = Status.STATUS_DELAYED
         task.times_dealyed += 1
         return self.create(task)

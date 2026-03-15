@@ -39,11 +39,12 @@ class VoiceTaskService:
         if intent.date_time <= datetime.now(timezone.utc):
             raise ValueError("Due date must be in the future")
 
+        formatted_due_date = intent.date_time.strftime("%Y-%m-%d %H:%M")
         task = Task(
             user_id=user_id,
             title=intent.task_keyword,
             description=None,
-            due_date=intent.date_time,
+            due_date=formatted_due_date,
             original_tz="Asia/Kolkata"
         )
         saved = self.repo.create(task)

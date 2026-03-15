@@ -37,15 +37,21 @@ export default function CreateTask({
       title: '',
       description: '',
       due_date: [nowCalendarDateTime()],
-      original_tz: 'Asia/Kolkata',
+      original_tz: getLocalTimeZone(),
     },
   })
 
+  function formatCalendarDateTimes(dt: CalendarDateTime): string {
+    const year = dt.year
+    const month = String(dt.month).padStart(2, '0')
+    const day = String(dt.day).padStart(2, '0')
+    const hour = String(dt.hour).padStart(2, '0')
+    const min = String(dt.minute).padStart(2, '0')
+    return `${year}-${month}-${day} ${hour}:${min}`
+  }
+
   const onSubmit = async (form: CreateTaskForm) => {
-    const iso =
-      form.due_date.length > 0
-        ? form.due_date[0].toDate(getLocalTimeZone()).toISOString()
-        : null
+    const formatted = formatCalendarDateTimes(form.due_date[0])
 
     try {
       const resp = await fetch(`${API_URL}/tasks/create`, {
@@ -56,7 +62,7 @@ export default function CreateTask({
         },
         body: JSON.stringify({
           ...form,
-          due_date: iso,
+          due_date: formatted,
         }),
       })
 
