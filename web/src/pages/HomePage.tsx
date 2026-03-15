@@ -14,10 +14,11 @@ import {
   Box,
 } from '@chakra-ui/react'
 import { Pencil, Trash2 } from 'lucide-react'
-import { taskService, type Task } from '../api/task'
 import Mic from '../components/app/Mic'
 import { useNavigate } from '@tanstack/react-router'
 import CreateTask from '../components/app/CreateTask'
+import { client } from '../api'
+import { toaster } from '../components/ui/toaster'
 
 export default function HomePage() {
   const [tasks, setTasks] = useState<Task[]>([])
@@ -36,11 +37,24 @@ export default function HomePage() {
     if (!localStorage.getItem('token')) {
       navigate({ to: 'auth', replace: true })
     }
-
-    taskService
-      .getAll()
-      .then(setTasks)
-      .finally(() => setLoading(false))
+    async function fetchTasks() {
+      try {
+        setLoading(true)
+        const resp = await client.get('/tasks')
+        setTasks(resp.data)
+      } catch (err) {
+        if (err instanceof Error) {
+          toaster.create({
+            closable: true,
+            title: err.message,
+            type: 'error',
+          })
+        }
+      } finally {
+        setLoading(false)
+      }
+    }
+    fetchTasks()
   }, [refresh])
 
   const memoizedTasks = useMemo(() => {
@@ -72,9 +86,6 @@ export default function HomePage() {
           <Table.Header p="1rem" bg="red">
             <Table.Row bg="bg.subtle" fontWeight={'bold'} fontSize={'md'}>
               <Table.ColumnHeader p={2} color="purple.500">
-                ID
-              </Table.ColumnHeader>
-              <Table.ColumnHeader p={2} color="purple.500">
                 Name
               </Table.ColumnHeader>
               <Table.ColumnHeader p={2} color="purple.500">
@@ -94,7 +105,6 @@ export default function HomePage() {
           <Table.Body>
             {memoizedTasks.map((task) => (
               <Table.Row key={task.id}>
-                <Table.Cell p={2}>{task.id}</Table.Cell>
                 <Table.Cell p={2}>{task.title}</Table.Cell>
                 <Table.Cell p={2}>{task.status}</Table.Cell>
                 <Table.Cell p={2}>{task.due_date}</Table.Cell>

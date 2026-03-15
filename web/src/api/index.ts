@@ -2,72 +2,83 @@ import { router } from '../router'
 
 export const API_URL = 'http://localhost:8000/api'
 
-export function getToken(): string | null {
+export function getToken() {
   return localStorage.getItem('token')
 }
 
-export function isAuthenticated(): boolean {
+export function isAuthenticated() {
   return !!getToken()
 }
 
 export function logout() {
   localStorage.removeItem('token')
+  router.navigate({ to: '/auth' })
 }
 
 class APIClient {
-  private async request<T>(url: string, config: RequestInit = {}): Promise<T> {
+  private async request(url: string, data = {}) {
     const token = getToken()
 
+    if (!token) {
+      logout()
+      throw new Error('No token found')
+    }
+
     const res = await fetch(`${API_URL}${url}`, {
-      ...config,
-      headers: { Authorization: `Bearer ${token}` },
+      ...data,
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${token}`,
+      },
     })
 
     if (res.status === 401) {
       logout()
-      router.navigate({ to: '/auth' })
       throw new Error('Unauthorized')
     }
 
     if (!res.ok) {
-      const text = await res.text()
-      throw new Error(text || res.statusText)
+      console.log(res)
+      let error = res.statusText
+      try {
+        const body = await res.json()
+        error = body.message ?? error
+      } catch {
+        error = (await res.text()) || error
+      }
+      throw new Error(error)
     }
 
     return res.json()
   }
 
-  get<T>(url: string, config?: RequestInit) {
-    return this.request<T>(url, { ...config, method: 'GET' })
+  get(url: string) {
+    return this.request(url, { method: 'GET' })
   }
 
-  post<T>(url: string, data?: unknown, config?: RequestInit) {
-    console.log(data)
-    return this.request<T>(url, {
-      ...config,
+  post(url: string, data: any) {
+    return this.request(url, {
       method: 'POST',
       body: JSON.stringify(data),
     })
   }
 
-  put<T>(url: string, data?: unknown, config?: RequestInit) {
-    return this.request<T>(url, {
-      ...config,
+  put(url: string, data: any) {
+    return this.request(url, {
       method: 'PUT',
       body: JSON.stringify(data),
     })
   }
 
-  patch<T>(url: string, data?: unknown, config?: RequestInit) {
-    return this.request<T>(url, {
-      ...config,
+  patch(url: string, data: any) {
+    return this.request(url, {
       method: 'PATCH',
       body: JSON.stringify(data),
     })
   }
 
-  delete<T>(url: string, config?: RequestInit) {
-    return this.request<T>(url, { ...config, method: 'DELETE' })
+  delete(url: string) {
+    return this.request(url, { method: 'DELETE' })
   }
 }
 

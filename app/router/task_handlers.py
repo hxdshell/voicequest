@@ -6,6 +6,7 @@ from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 from app.schema.schema import APIResponse, TaskCreate
 from app.services.model_client import ModelClient
 from app.services.task_service import TaskService
+from app.services.voice_task_service import VoiceTaskService
 from . import get_model_client, router
 from app.db.sqlite import SessionDep
 
@@ -30,7 +31,7 @@ async def handle_voice_task(request: Request,session: SessionDep , audio: Upload
         })
 
     try:
-        service = TaskService(session=session)
+        service = VoiceTaskService(session=session)
         result = service.handle_intent(user_id=request.state.user_id, intent=intent)
     except ValueError as e:
         return JSONResponse(status_code=400, content={

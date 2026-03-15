@@ -1,10 +1,29 @@
 import { Button, Dialog, Field, Input, Portal, Stack } from '@chakra-ui/react'
 import { Plus, XIcon } from 'lucide-react'
 import { useState } from 'react'
+import { useForm, Controller } from 'react-hook-form'
 import DateTimePicker from '../ui/DateTimePicker'
 import { CalendarDateTime, getLocalTimeZone } from '@internationalized/date'
 import { API_URL } from '../../api'
 import { toaster } from '../ui/toaster'
+
+type CreateTaskForm = {
+  title: string
+  description: string
+  due_date: CalendarDateTime[]
+  original_tz: string
+}
+
+function nowCalendarDateTime() {
+  const d = new Date()
+  return new CalendarDateTime(
+    d.getFullYear(),
+    d.getMonth() + 1,
+    d.getDate(),
+    d.getHours(),
+    d.getMinutes(),
+  )
+}
 
 export default function CreateTask({
   setRefresh,
@@ -12,29 +31,20 @@ export default function CreateTask({
   setRefresh: React.Dispatch<React.SetStateAction<boolean>>
 }) {
   const [isAddOpen, setIsAddOpen] = useState(false)
-  const [formData, setFormData] = useState({
-    title: '',
+
+  const { register, handleSubmit, control, reset } = useForm<CreateTaskForm>({
+    defaultValues: {
+      title: '',
+      description: '',
+      due_date: [nowCalendarDateTime()],
+      original_tz: 'Asia/Kolkata',
+    },
   })
 
-  function nowCalendarDateTime() {
-    const d = new Date()
-    return new CalendarDateTime(
-      d.getFullYear(),
-      d.getMonth() + 1,
-      d.getDate(),
-      d.getHours(),
-      d.getMinutes(),
-    )
-  }
-
-  const [value, setValue] = useState<CalendarDateTime[]>([
-    nowCalendarDateTime(),
-  ])
-
-  const handleAddTask = async () => {
+  const onSubmit = async (form: CreateTaskForm) => {
     const iso =
-      value.length > 0
-        ? value[0].toDate(getLocalTimeZone()).toISOString()
+      form.due_date.length > 0
+        ? form.due_date[0].toDate(getLocalTimeZone()).toISOString()
         : null
 
     try {
@@ -45,36 +55,31 @@ export default function CreateTask({
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          title: formData.title,
-          description: '',
+          ...form,
           due_date: iso,
-          original_tz: 'Asia/Kolkata',
         }),
       })
+
       const data = await resp.json()
-      if (resp.status != 200) {
-        throw new Error(data.message ? data.message : 'could not create task')
+
+      if (resp.status !== 200) {
+        throw new Error(data.message ?? 'could not create task')
       }
+
       toaster.create({
         title: 'task created',
         type: 'success',
         closable: true,
       })
-      setRefresh((val) => !val)
+
+      setRefresh((v) => !v)
+      reset()
     } catch (err) {
-      if (err instanceof Error) {
-        toaster.create({
-          title: err.message,
-          closable: true,
-          type: 'error',
-        })
-      } else {
-        toaster.create({
-          title: 'could not create task',
-          closable: true,
-          type: 'error',
-        })
-      }
+      toaster.create({
+        title: err instanceof Error ? err.message : 'could not create task',
+        type: 'error',
+        closable: true,
+      })
     } finally {
       setIsAddOpen(false)
     }
@@ -87,6 +92,7 @@ export default function CreateTask({
           <Plus size={10} style={{ marginRight: '1px' }} /> Add Task
         </Button>
       </Dialog.Trigger>
+
       <Portal>
         <Dialog.Backdrop />
         <Dialog.Positioner>
@@ -94,28 +100,38 @@ export default function CreateTask({
             <Dialog.Header bg="bg.subtle">
               <Dialog.Title color="purple.500">Create New Task</Dialog.Title>
             </Dialog.Header>
+
             <Dialog.Body>
               <Stack gap="5">
                 <Field.Root>
                   <Field.Label>Task Title</Field.Label>
                   <Input
                     placeholder="What needs to be done?"
-                    value={formData.title}
-                    onChange={(e) =>
-                      setFormData({ ...formData, title: e.target.value })
-                    }
+                    {...register('title')}
                   />
                 </Field.Root>
-                <DateTimePicker value={value} setValue={setValue} />
+
+                <Controller
+                  control={control}
+                  name="due_date"
+                  render={({ field }) => (
+                    <DateTimePicker
+                      value={field.value}
+                      setValue={field.onChange}
+                    />
+                  )}
+                />
               </Stack>
             </Dialog.Body>
+
             <Dialog.Footer>
               <Dialog.CloseTrigger asChild>
                 <Button variant="ghost">
                   <XIcon />
                 </Button>
               </Dialog.CloseTrigger>
-              <Button onClick={handleAddTask} colorPalette="blue">
+
+              <Button onClick={handleSubmit(onSubmit)} colorPalette="blue">
                 Save Task
               </Button>
             </Dialog.Footer>
