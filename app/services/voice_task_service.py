@@ -47,7 +47,7 @@ class VoiceTaskService:
             due_date=formatted_due_date,
             original_tz="Asia/Kolkata"
         )
-        saved = self.repo.create(task)
+        saved = self.repo.save(task)
         return {"action": "created", "task_id": saved.id, "title": saved.title, "due_date": saved.due_date}
 
     def _handle_complete(self, user_id: int, intent: TaskIntent) -> dict:

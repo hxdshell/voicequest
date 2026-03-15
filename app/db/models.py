@@ -1,9 +1,9 @@
 from sqlalchemy import DateTime
 from sqlmodel import Field, SQLModel
 from datetime import datetime,UTC
-from enum import Enum
+from enum import IntEnum
 
-class Status(str, Enum):
+class Status(IntEnum):
     STATUS_PENDING = 0
     STATUS_DELAYED = 1
     STATUS_COMPLETED = 2

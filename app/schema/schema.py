@@ -16,18 +16,26 @@ class TaskCreate(BaseModel):
     original_tz: str 
 
 class TaskUpdate(BaseModel):
-    title: str = None
-    description: Optional[str] = None
-    due_date: str = None
-    original_tz: str = None
-    status: int = None
+    title: str
+    description: Optional[str] = ""
+    due_date: str 
+    original_tz: str
+    status: Status
 
-    @field_validator("status")
-    @classmethod
-    def validate_status(cls, v: int | None) -> Status | None:
-        if v is not None:
-            return Status(v)  # raises ValueError if invalid int
-        return None
+    # @field_validator("status")
+    # @classmethod
+    # def validate_status(cls, v: int | None) -> Status | None:
+    #     if v is not None:
+    #         return Status(v)  # raises ValueError if invalid int
+    #     return None
+    
+class TaskAnalyticsResponse(BaseModel):
+    total_tasks: int
+    status_breakdown: dict[str, int]  # e.g. {"STATUS_PENDING": 4, "STATUS_COMPLETED": 2}
+    overdue_count: int
+    avg_times_delayed: float
+    due_soon_count: int               # tasks due within the next 7 days
+    completion_rate: float     
 
 class APIResponse(BaseModel):
     message: str

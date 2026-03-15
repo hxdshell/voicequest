@@ -48,7 +48,7 @@ class UserService:
         user = User(email=data.email, password=hashed_pwd)
         
         try:
-            return self.repo.create(user)
+            return self.repo.save(user)
         except IntegrityError:
             raise ValueError("email already exists")
             

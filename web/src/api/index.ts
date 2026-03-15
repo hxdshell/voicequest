@@ -38,7 +38,6 @@ class APIClient {
     }
 
     if (!res.ok) {
-      console.log(res)
       let error = res.statusText
       try {
         const body = await res.json()

@@ -3,7 +3,7 @@ from fastapi import Request,Depends, UploadFile
 from fastapi.responses import JSONResponse
 from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 
-from app.schema.schema import APIResponse, TaskCreate
+from app.schema.schema import APIResponse, TaskAnalyticsResponse, TaskCreate, TaskUpdate
 from app.services.model_client import ModelClient
 from app.services.task_service import TaskService
 from app.services.voice_task_service import VoiceTaskService
@@ -69,6 +69,41 @@ async def create_task(
     try:
         resp_task = service.create_task(request.state.user_id,task)
         return APIResponse(message="task created successfully", data=resp_task)
+    except ValueError as e:
+        return JSONResponse(status_code=400, content={
+            "message": str(e),
+            "data": None
+        })
+    
+@router.put("/tasks/update/{task_id}")
+async def update_task(
+    task_id: int,
+    request: Request,
+    task: TaskUpdate,
+    session: SessionDep,
+    token: HTTPAuthorizationCredentials = Depends(auth_scheme),
+):
+    service = TaskService(session=session)
+    try:
+        resp_task = service.update(task_id=task_id,user_id=request.state.user_id,data=task)
+        return APIResponse(message="task updated successfully", data=resp_task)
+    except ValueError as e:
+        return JSONResponse(status_code=400, content={
+            "message": str(e),
+            "data": None
+        })
+    
+@router.delete("/tasks/delete/{task_id}")
+async def delete_task(
+    task_id: int,
+    request: Request,
+    session: SessionDep,
+    token: HTTPAuthorizationCredentials = Depends(auth_scheme),
+):
+    service = TaskService(session=session)
+    try:
+        service.delete(task_id=task_id,user_id=request.state.user_id)
+        return APIResponse(message="task deleted successfully", data=None)
     except ValueError as e:
         return JSONResponse(status_code=400, content={
             "message": str(e),

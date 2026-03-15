@@ -41,7 +41,6 @@ export default function AuthPage() {
       })
 
       const data = await res.json()
-      console.log(data)
 
       if (!res.ok) {
         setLoginError(data.message || 'Login failed')
@@ -70,7 +69,6 @@ export default function AuthPage() {
       })
 
       const data = await res.json()
-      console.log(data)
 
       if (!res.ok) {
         setSignupError(data.message || 'Signup failed')

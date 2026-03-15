@@ -3,9 +3,7 @@ import {
   Table,
   Button,
   Dialog,
-  Input,
   Stack,
-  Field,
   IconButton,
   HStack,
   Text,
@@ -20,6 +18,7 @@ import CreateTask from '../components/app/CreateTask'
 import { client } from '../api'
 import { toaster } from '../components/ui/toaster'
 import StatusBadge from '../components/app/StatusBadge'
+import UpdateTask from '../components/app/UpdateTask'
 
 export default function HomePage() {
   const [tasks, setTasks] = useState<Task[]>([])
@@ -27,11 +26,8 @@ export default function HomePage() {
   const [refresh, setRefresh] = useState(false)
 
   // Dialog/Form States
-  const [editingTask, setEditingTask] = useState<Task | null>(null)
-  const [deletingTaskId, setDeletingTaskId] = useState<string | null>(null)
-  const [formData, setFormData] = useState({
-    title: '',
-  })
+  const [editTaskData, setEditTaskData] = useState<Task | null>(null)
+  const [deletingTaskId, setDeletingTaskId] = useState<number | null>(null)
   const navigate = useNavigate()
 
   useEffect(() => {
@@ -42,7 +38,6 @@ export default function HomePage() {
       try {
         setLoading(true)
         const resp = await client.get('/tasks')
-        console.log(resp.data)
         setTasks(resp.data)
       } catch (err) {
         if (err instanceof Error) {
@@ -63,7 +58,26 @@ export default function HomePage() {
     return tasks
   }, [tasks, refresh])
 
-  const handleUpdateTask = async () => {}
+  async function handleDeleteTask() {
+    if (deletingTaskId === null) return
+
+    try {
+      await client.delete(`/tasks/delete/${deletingTaskId}`)
+      toaster.create({
+        closable: true,
+        type: 'success',
+        title: 'task deleted',
+      })
+      setDeletingTaskId(null)
+      setRefresh((v) => !v)
+    } catch (err) {
+      toaster.create({
+        closable: true,
+        type: 'error',
+        title: 'could not delete task',
+      })
+    }
+  }
 
   if (loading)
     return (
@@ -83,6 +97,11 @@ export default function HomePage() {
         <CreateTask setRefresh={setRefresh} />
       </HStack>
 
+      <UpdateTask
+        task={editTaskData}
+        setTask={setEditTaskData}
+        setRefresh={setRefresh}
+      />
       <Table.ScrollArea borderWidth={'1px'} height="260px">
         <Table.Root size="sm" interactive stickyHeader>
           <Table.Header p="1rem" bg="red">
@@ -117,10 +136,7 @@ export default function HomePage() {
                     variant="ghost"
                     size="sm"
                     onClick={() => {
-                      setEditingTask(task)
-                      setFormData({
-                        title: task.title,
-                      })
+                      setEditTaskData(task)
                     }}
                   >
                     <Pencil size={16} />
@@ -131,7 +147,7 @@ export default function HomePage() {
                     variant="ghost"
                     size="sm"
                     colorPalette="red"
-                    // onClick={() => setDeletingTaskId(task.id)}
+                    onClick={() => setDeletingTaskId(task.id)}
                   >
                     <Trash2 size={16} />
                   </IconButton>
@@ -141,42 +157,6 @@ export default function HomePage() {
           </Table.Body>
         </Table.Root>
       </Table.ScrollArea>
-
-      {/* Edit Dialog */}
-      <Dialog.Root
-        open={!!editingTask}
-        onOpenChange={(e) => !e.open && setEditingTask(null)}
-      >
-        <Dialog.Backdrop />
-        <Dialog.Positioner>
-          <Dialog.Content>
-            <Dialog.Header>
-              <Dialog.Title>Update Task</Dialog.Title>
-            </Dialog.Header>
-            <Dialog.Body>
-              <Stack gap="4">
-                <Field.Root>
-                  <Field.Label>Task Title</Field.Label>
-                  <Input
-                    value={formData.title}
-                    onChange={(e) =>
-                      setFormData({ ...formData, title: e.target.value })
-                    }
-                  />
-                </Field.Root>
-              </Stack>
-            </Dialog.Body>
-            <Dialog.Footer>
-              <Button variant="outline" onClick={() => setEditingTask(null)}>
-                Cancel
-              </Button>
-              <Button colorPalette="blue" onClick={handleUpdateTask}>
-                Update
-              </Button>
-            </Dialog.Footer>
-          </Dialog.Content>
-        </Dialog.Positioner>
-      </Dialog.Root>
 
       {/* Delete Confirmation Dialog */}
       <Dialog.Root
@@ -198,9 +178,9 @@ export default function HomePage() {
               <Button variant="outline" onClick={() => setDeletingTaskId(null)}>
                 Cancel
               </Button>
-              {/* <Button colorPalette="red" onClick={handleDeleteTask}>
+              <Button colorPalette="red" onClick={handleDeleteTask}>
                 Delete
-              </Button> */}
+              </Button>
             </Dialog.Footer>
           </Dialog.Content>
         </Dialog.Positioner>
