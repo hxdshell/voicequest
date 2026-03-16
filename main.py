@@ -2,6 +2,8 @@ from contextlib import asynccontextmanager
 import os
 
 from fastapi import FastAPI, Request
+from fastapi.responses import FileResponse
+from fastapi.staticfiles import StaticFiles
 from app.db.sqlite import create_db_and_tables
 from app.router import router
 from dotenv import load_dotenv
@@ -27,16 +29,22 @@ app = FastAPI(lifespan=lifespan)
 
 
 app.include_router(router)
-origins = [
-    "http://localhost:5173",
-]
+# origins = [
+#     "http://localhost:5173",
+# ]
 
 app.add_middleware(AuthMiddleware)
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=origins,
+    allow_origin_regex=r"http://localhost:\d+",
+    # allow_origins=origins,
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
 
+app.mount("/assets", StaticFiles(directory="web/dist/assets"), name="assets")
+
+@app.get("/{full_path:path}")
+async def serve_spa(full_path: str):
+    return FileResponse("web/dist/index.html")

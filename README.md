@@ -2,16 +2,25 @@
 
 **Manage tasks, Hands free**
 
-## 🚀 Setup Instructions
+A Task management app which lets you schedule, reschedule, complete and cancel task just by using natural language voice. It uses ElevenLabs API for speech to text transcription and openweight mistral model for intent parsing.
+
+It uses SQLite3 as primary database so users can easily just clone this and start running this app without having to setup database.
+
+## App Flow
+
+<img src="assets/diagram.png" width="500">
+
+## Setup Instructions
 
 ### Prerequisites
 
 - Python 3.10+
 - Node.js 18+ and npm (for the web folder)
+- `uv` (recommended)
 
 ---
 
-0. **Create `.env` file in this root folder**
+- **Create `.env` file in this root folder**
 
 ```env
 # JWT Secret — generate with:
@@ -23,7 +32,7 @@ SECRET_KEY=your_generated_secret_here
 MISTRAL_API_KEY=your_mistral_api_key_here
 
 # ElevenLabs API Key
-# Get it from: https://elevenlabs.io/app/settings/api-keys
+# Get it from: https://elevenlabs.io/app/developers/api-keys
 ELEVENLABS_API_KEY=your_elevenlabs_api_key_here
 ```
 
@@ -50,6 +59,14 @@ ELEVENLABS_API_KEY=your_elevenlabs_api_key_here
 ```bash
    uv sync
 ```
+
+- After activating `.venv` run this command to start a uvicorn server
+
+```bash
+fastapi dev
+```
+
+- An SQlite3 Database file `voicequest.db` will be automatically created the current folder.
 
 ---
 
@@ -79,7 +96,22 @@ ELEVENLABS_API_KEY=your_elevenlabs_api_key_here
 
 ### Web Setup
 
-> Note : Please run it on port 5173
+### Production Server (serves ui from the same fastapi server)
+
+```bash
+cd web
+npm install
+npm run build
+```
+
+```bash
+cd ../
+fastapi dev
+```
+
+- Serves SPA on `/`
+
+### Development Server
 
 1. **Navigate to the web folder:**
 
