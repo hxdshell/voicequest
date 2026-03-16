@@ -19,6 +19,7 @@ import { client } from '../api'
 import { toaster } from '../components/ui/toaster'
 import StatusBadge from '../components/app/StatusBadge'
 import UpdateTask from '../components/app/UpdateTask'
+import { Tooltip } from '../components/ui/tooltip'
 
 export default function HomePage() {
   const [tasks, setTasks] = useState<Task[]>([])
@@ -126,7 +127,11 @@ export default function HomePage() {
           <Table.Body>
             {memoizedTasks.map((task) => (
               <Table.Row key={task.id}>
-                <Table.Cell p={2}>{task.title}</Table.Cell>
+                <Table.Cell p={2}>
+                  <Tooltip content={task.description}>
+                    <Text>{task.title}</Text>
+                  </Tooltip>
+                </Table.Cell>
                 <Table.Cell p={2}>
                   {<StatusBadge status={task.status} />}
                 </Table.Cell>
