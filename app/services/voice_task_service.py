@@ -20,7 +20,6 @@ class VoiceTaskService:
         return matches[0]
 
     def handle_intent(self, user_id: int, intent: TaskIntent) -> dict:
-        print(intent)
         match intent.intent:
             case "create_task":
                 return self._handle_create(user_id, intent)
@@ -44,8 +43,8 @@ class VoiceTaskService:
         task = Task(
             user_id=user_id,
             title=intent.task_keyword,
-            description=None,
             due_date=formatted_due_date,
+            description=intent.task_description,
             original_tz="Asia/Kolkata"
         )
         saved = self.repo.save(task)

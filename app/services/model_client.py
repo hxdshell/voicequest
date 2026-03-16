@@ -6,7 +6,6 @@ from app.schema.schema import TaskIntent
 SYSTEM_PROMPT = """You are an intent parser for a task management voice assistant.
 The user will provide a natural language transcription from a voice recording.
 Extract structured information from it.
-
 Rules:
 - intent mapping:
     * "create", "add", "schedule", "set up", "make" → create_task
@@ -18,6 +17,9 @@ Rules:
   If no year is mentioned, assume the current year.
   If time is not mentioned, default to 09:00.
   For complete_task and cancel_task, always set date_time to null.
+- task_description: a brief 1-2 sentence summary of the task in plain language.
+  Infer context and purpose from the user's phrasing where possible.
+  If no additional context is available beyond the task_keyword, set to null.
 """
 
 class ModelClient:
