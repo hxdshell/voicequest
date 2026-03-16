@@ -36,6 +36,14 @@ MISTRAL_API_KEY=your_mistral_api_key_here
 ELEVENLABS_API_KEY=your_elevenlabs_api_key_here
 ```
 
+### Docker
+
+If you prefer docker maksure `.env` file has all the keys before building.
+
+```bash
+docker compose up --build
+```
+
 ### Python Setup
 
 #### Option A: Using `uv` (Recommended)

@@ -1,0 +1,22 @@
+services:
+  voicequest:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: voicequest
+
+    # Load secrets from the .env file at the project root
+    env_file:
+      - .env
+
+    ports:
+      - "8000:8000"
+
+    volumes:
+      # Persist the SQLite database across container restarts
+      - voicequest_data:/data
+
+    restart: unless-stopped
+
+volumes:
+  voicequest_data:

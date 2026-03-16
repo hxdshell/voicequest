@@ -1,0 +1,25 @@
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+.venv/
+*.egg-info/
+dist/
+build/
+
+# Node
+web/node_modules/
+web/.next/
+web/dist/
+
+# Local env & secrets
+.env
+
+# Dev / editor artefacts
+.git/
+.gitignore
+.vscode/
+*.md
+
+# SQLite database (persisted via Docker volume instead)
+voicequest.db
