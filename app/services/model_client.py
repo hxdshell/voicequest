@@ -40,6 +40,8 @@ class ModelClient:
         return transcription  
 
     def parse_transcription(self, transcription: str) -> TaskIntent:
+        if(transcription == ""):
+            raise ValueError("unable to transcribe")
         from datetime import datetime
         today = datetime.now().strftime("%A, %B %d, %Y")
         user_message = f"Today is {today}.\n\nTranscription: {transcription}"

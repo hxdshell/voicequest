@@ -20,6 +20,7 @@ class VoiceTaskService:
         return matches[0]
 
     def handle_intent(self, user_id: int, intent: TaskIntent) -> dict:
+        print(intent)
         match intent.intent:
             case "create_task":
                 return self._handle_create(user_id, intent)
