@@ -33,7 +33,7 @@ async def handle_voice_task(request: Request,session: SessionDep , audio: Upload
 
     try:
         service = VoiceTaskService(session=session)
-        result = service.handle_intent(user_id=request.state.user_id, intent=intent)
+        result = service.handle_intent(user_id=request.state.user_id, intent=intent,transcription=transcription.text)
     except ValueError as e:
         return JSONResponse(status_code=400, content={
             "message": str(e),

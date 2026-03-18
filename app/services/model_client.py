@@ -46,7 +46,7 @@ class ModelClient:
             raise ValueError("unable to transcribe")
         from datetime import datetime
         today = datetime.now().strftime("%A, %B %d, %Y")
-        user_message = f"Today is {today}.\n\nTranscription: {transcription}"
+        user_message = f"Today is {today}.\n\nTranscriptLog: {transcription}"
 
         response = self.llm_client.chat.parse(
             model="mistral-small-latest",

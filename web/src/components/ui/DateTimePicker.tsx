@@ -29,10 +29,8 @@ export default function DateTimePicker({
 
   const onTimeChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const [hours, minutes] = e.currentTarget.value.split(':').map(Number)
-    setValue((prev) => {
-      const current = prev[0] ?? new CalendarDateTime(2025, 1, 1, 0, 0)
-      return [current.set({ hour: hours, minute: minutes })]
-    })
+    const current = value[0] ?? new CalendarDateTime(2025, 1, 1, 0, 0)
+    setValue([current.set({ hour: hours, minute: minutes })])
   }
 
   const onDateChange = (details: { value: DateValue[] }) => {
@@ -50,7 +48,6 @@ export default function DateTimePicker({
     ])
   }
 
-  // DateTimePicker.tsx
   return (
     <DatePicker.Root
       value={value}

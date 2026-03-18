@@ -1,6 +1,6 @@
 from datetime import datetime, timezone
 
-from sqlalchemy import Transaction
+from app.db.models import TranscriptLog
 from sqlmodel import Session
 from app.repo.task_repo import TaskRepo
 from app.db.models import Task
@@ -51,13 +51,13 @@ class VoiceTaskService:
             original_tz="Asia/Kolkata"
         )
         saved = self.repo.save(task)
-        self.transcriptRepo.save(transcript=Transaction(user_id=user_id,transcription=transcription))
+        self.transcriptRepo.save(transcript=TranscriptLog(user_id=user_id,transcription=transcription))
         return {"action": "created", "task_id": saved.id, "title": saved.title, "due_date": saved.due_date}
 
     def _handle_complete(self, user_id: int, intent: TaskIntent, transcription: str) -> dict:
         task = self._resolve_task(user_id, intent.task_keyword)
         updated = self.repo.complete_task(task)
-        self.transcriptRepo.save(transcript=Transaction(user_id=user_id,transcription=transcription))
+        self.transcriptRepo.save(transcript=TranscriptLog(user_id=user_id,transcription=transcription))
         return {"action": "completed", "task_id": updated.id, "title": updated.title}
 
     def _handle_delay(self, user_id: int, intent: TaskIntent, transcription: str) -> dict:
@@ -66,7 +66,7 @@ class VoiceTaskService:
         task = self._resolve_task(user_id, intent.task_keyword)
         new_due = intent.date_time.replace(tzinfo=timezone.utc) if intent.date_time.tzinfo is None else intent.date_time
         updated = self.repo.delay_task(task, new_due_date=new_due)
-        self.transcriptRepo.save(transcript=Transaction(user_id=user_id,transcription=transcription))
+        self.transcriptRepo.save(transcript=TranscriptLog(user_id=user_id,transcription=transcription))
         return {
             "action": "delayed",
             "task_id": updated.id,
@@ -78,6 +78,6 @@ class VoiceTaskService:
     def _handle_cancel(self, user_id: int, intent: TaskIntent, transcription: str) -> dict:
         task = self._resolve_task(user_id, intent.task_keyword)
         updated = self.repo.cancel_task(task)
-        self.transcriptRepo.save(transcript=Transaction(user_id=user_id,transcription=transcription))
+        self.transcriptRepo.save(transcript=TranscriptLog(user_id=user_id,transcription=transcription))
         return {"action": "cancelled", "task_id": updated.id, "title": updated.title}
 

@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react'
 import { useNavigate } from '@tanstack/react-router'
 import { client } from '../api'
 import { toaster } from '../components/ui/toaster'
+import { CircleIcon } from 'lucide-react'
 
 export default function AnalyticsDashboard() {
   const navigate = useNavigate()
@@ -53,13 +54,20 @@ export default function AnalyticsDashboard() {
           </Box>
 
           <Box flex="1" h="calc(100vh - 88px)" overflowY={'auto'}>
-            <h3>Transcription Logs</h3>
+            <Text fontSize="md" color="purple.500" mb="1rem">
+              TranscriptLog Logs
+            </Text>
             {transcripts.length === 0 ? (
               <Text color="fg.subtle">0 trnascripts found</Text>
             ) : (
               <List.Root gap={2}>
                 {transcripts.map((t) => (
-                  <List.Item key={t.id}>{t.transcription}</List.Item>
+                  <List.Item key={t.id}>
+                    <List.Indicator asChild color="purple.300">
+                      <CircleIcon size={18} />
+                    </List.Indicator>
+                    {t.transcription}
+                  </List.Item>
                 ))}
               </List.Root>
             )}

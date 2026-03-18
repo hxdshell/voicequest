@@ -26,7 +26,7 @@ class Task(SQLModel, table=True):
     times_dealyed: int = Field(default=0,nullable=False)
     created_at: datetime = Field(default_factory=lambda: datetime.now(UTC))
 
-class Transcription(SQLModel, table=True):
+class TranscriptLog(SQLModel, table=True):
     id: int = Field(primary_key=True)
     user_id: int = Field(foreign_key="user.id")
     transcription: str = Field(nullable=False)
