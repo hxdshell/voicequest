@@ -75,3 +75,15 @@ class TaskService:
             self.repo.delete(task)
         except (NoResultFound, MultipleResultsFound):
             raise ValueError("task not found")
+        
+    def get_task_analytics(self, user_id: int):
+        data = self.repo.get_analytics(user_id)
+
+        # optional derived metrics (useful for graphs)
+        total = data["total"] or 1  # avoid division by zero
+
+        data["completion_rate"] = data["completed"] / total
+        data["on_time_rate"] = data["completed_on_time"] / total
+        data["delay_rate"] = data["completed_after_delay"] / total
+
+        return data

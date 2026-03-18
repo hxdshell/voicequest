@@ -1,4 +1,4 @@
-import { Box, Button, Field, Input, Text } from '@chakra-ui/react'
+import { Box, Button, Field, Input, Stack, Text, Tabs } from '@chakra-ui/react'
 import { PasswordInput } from '../components/ui/password-input'
 import { useState } from 'react'
 import { useNavigate } from '@tanstack/react-router'
@@ -20,15 +20,14 @@ export default function AuthPage() {
 
   const [loginError, setLoginError] = useState<string | null>(null)
   const [signupError, setSignupError] = useState<string | null>(null)
-
-  const [signupSuccess, setSignupSuccess] = useState<string | null>()
+  const [signupSuccess, setSignupSuccess] = useState<string | null>(null)
 
   const [loadingLogin, setLoadingLogin] = useState(false)
   const [loadingSignup, setLoadingSignup] = useState(false)
 
   const navigate = useNavigate()
 
-  async function handleLogin(e: React.FormEvent) {
+  async function handleLogin(e: React.SubmitEvent<HTMLFormElement>) {
     e.preventDefault()
     setLoginError(null)
     setLoadingLogin(true)
@@ -56,7 +55,7 @@ export default function AuthPage() {
     }
   }
 
-  async function handleSignup(e: React.FormEvent) {
+  async function handleSignup(e: React.SubmitEvent<HTMLFormElement>) {
     e.preventDefault()
     setSignupError(null)
     setLoadingSignup(true)
@@ -74,7 +73,8 @@ export default function AuthPage() {
         setSignupError(data.message || 'Signup failed')
         return
       }
-      setSignupSuccess('signup successful you can login now')
+
+      setSignupSuccess('Signup successful, you can login now')
     } catch {
       setSignupError('Network error')
     } finally {
@@ -83,117 +83,108 @@ export default function AuthPage() {
   }
 
   return (
-    <Box height="100%">
-      <Box
-        mt="2rem"
-        display="flex"
-        alignItems="center"
-        gap="4rem"
-        justifyContent="center"
-      >
-        {/* LOGIN */}
-        <form onSubmit={handleLogin}>
-          <Box p={4} bg="bg.subtle" display="flex" flexDir="column" gap="1rem">
-            <Text mb="1rem" fontSize="md">
-              Login
-            </Text>
+    <Box
+      h="calc(100vh - 48px)"
+      display="flex"
+      paddingTop="1rem"
+      justifyContent="center"
+    >
+      <Tabs.Root w="400px" variant="outline" defaultValue="login" fitted>
+        <Tabs.List>
+          <Tabs.Trigger value="login">Login</Tabs.Trigger>
+          <Tabs.Trigger value="signup">Sign Up</Tabs.Trigger>
+        </Tabs.List>
 
-            {loginError && (
-              <Text color="red.400" fontSize="sm">
-                {loginError}
-              </Text>
-            )}
+        <Tabs.Content value="login">
+          <form onSubmit={handleLogin}>
+            <Stack p={4} gap="1.5rem">
+              {loginError && (
+                <Text color="red.400" fontSize="sm">
+                  {loginError}
+                </Text>
+              )}
 
-            <Field.Root required>
-              <Field.Label>
-                Email <Field.RequiredIndicator />
-              </Field.Label>
-              <Input
-                w="20vw"
-                p={1}
-                value={loginData.email}
-                onChange={(e) =>
-                  setLoginData({ ...loginData, email: e.target.value })
-                }
-                placeholder="Enter your email"
-              />
-            </Field.Root>
+              <Field.Root required>
+                <Field.Label>
+                  Email <Field.RequiredIndicator />
+                </Field.Label>
+                <Input
+                  value={loginData.email}
+                  onChange={(e) =>
+                    setLoginData({ ...loginData, email: e.target.value })
+                  }
+                  placeholder="Enter your email"
+                />
+              </Field.Root>
 
-            <Field.Root required>
-              <Field.Label>
-                Password <Field.RequiredIndicator />
-              </Field.Label>
-              <PasswordInput
-                w="20vw"
-                p={1}
-                value={loginData.password}
-                onChange={(e: any) =>
-                  setLoginData({ ...loginData, password: e.target.value })
-                }
-                placeholder="Enter your password"
-              />
-            </Field.Root>
+              <Field.Root required>
+                <Field.Label>
+                  Password <Field.RequiredIndicator />
+                </Field.Label>
+                <PasswordInput
+                  value={loginData.password}
+                  onChange={(e: any) =>
+                    setLoginData({ ...loginData, password: e.target.value })
+                  }
+                  placeholder="Enter your password"
+                />
+              </Field.Root>
 
-            <Button loading={loadingLogin} type="submit">
-              Login
-            </Button>
-          </Box>
-        </form>
+              <Button loading={loadingLogin} type="submit">
+                Login
+              </Button>
+            </Stack>
+          </form>
+        </Tabs.Content>
 
-        {/* SIGNUP */}
-        <form onSubmit={handleSignup}>
-          <Box p={4} bg="bg.subtle" display="flex" flexDir="column" gap="1rem">
-            <Text mb="1rem" fontSize="md">
-              Sign Up
-            </Text>
+        <Tabs.Content value="signup">
+          <form onSubmit={handleSignup}>
+            <Stack p={4} gap="1.5rem">
+              {signupError && (
+                <Text color="red.400" fontSize="sm">
+                  {signupError}
+                </Text>
+              )}
 
-            {signupError && (
-              <Text color="red.400" fontSize="sm">
-                {signupError}
-              </Text>
-            )}
-            {signupSuccess && (
-              <Text color="green.400" fontSize="sm">
-                {signupSuccess}
-              </Text>
-            )}
+              {signupSuccess && (
+                <Text color="green.400" fontSize="sm">
+                  {signupSuccess}
+                </Text>
+              )}
 
-            <Field.Root required>
-              <Field.Label>
-                Email <Field.RequiredIndicator />
-              </Field.Label>
-              <Input
-                w="20vw"
-                value={signUpData.email}
-                p={1}
-                onChange={(e) =>
-                  setSignUpData({ ...signUpData, email: e.target.value })
-                }
-                placeholder="Enter your email"
-              />
-            </Field.Root>
+              <Field.Root required>
+                <Field.Label>
+                  Email <Field.RequiredIndicator />
+                </Field.Label>
+                <Input
+                  value={signUpData.email}
+                  onChange={(e) =>
+                    setSignUpData({ ...signUpData, email: e.target.value })
+                  }
+                  placeholder="Enter your email"
+                />
+              </Field.Root>
 
-            <Field.Root required>
-              <Field.Label>
-                Password <Field.RequiredIndicator />
-              </Field.Label>
-              <PasswordInput
-                w="20vw"
-                p={1}
-                value={signUpData.password}
-                onChange={(e: any) =>
-                  setSignUpData({ ...signUpData, password: e.target.value })
-                }
-                placeholder="Enter your password"
-              />
-            </Field.Root>
+              <Field.Root required>
+                <Field.Label>
+                  Password <Field.RequiredIndicator />
+                </Field.Label>
+                <PasswordInput
+                  value={signUpData.password}
+                  onChange={(e: any) =>
+                    setSignUpData({ ...signUpData, password: e.target.value })
+                  }
+                  placeholder="Enter your password"
+                />
+              </Field.Root>
 
-            <Button loading={loadingSignup} type="submit">
-              Sign Up
-            </Button>
-          </Box>
-        </form>
-      </Box>
+              <Button loading={loadingSignup} type="submit">
+                Sign Up
+              </Button>
+            </Stack>
+          </form>
+        </Tabs.Content>
+      </Tabs.Root>
     </Box>
   )
 }

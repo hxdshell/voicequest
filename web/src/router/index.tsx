@@ -9,6 +9,7 @@ import Layout from '../pages/Layout'
 import HomePage from '../pages/HomePage'
 import AuthPage from '../pages/AuthPage'
 import { isAuthenticated } from '../api'
+import AnalyticsDashboard from '../pages/AnalyticsDashboard'
 
 const rootRoute = createRootRoute({
   component: Outlet,
@@ -38,7 +39,13 @@ const authRoute = createRoute({
   component: AuthPage,
 })
 
+const analyticsRoute = createRoute({
+  getParentRoute: () => appRoute,
+  path: '/analytics',
+  component: AnalyticsDashboard,
+})
+
 const routeTree = rootRoute.addChildren([
-  appRoute.addChildren([indexRoute, authRoute]),
+  appRoute.addChildren([indexRoute, authRoute, analyticsRoute]),
 ])
 export const router = createRouter({ routeTree })

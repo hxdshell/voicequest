@@ -109,3 +109,19 @@ async def delete_task(
             "message": str(e),
             "data": None
         })
+    
+@router.get("/tasks/analytics")
+async def get_task_analytics(
+   request: Request,
+    session: SessionDep,
+    token: HTTPAuthorizationCredentials = Depends(auth_scheme),
+):
+    service = TaskService(session=session)
+    try:
+        analytics = service.get_task_analytics(user_id=request.state.user_id)
+        return APIResponse(message="analytics data fetched successfully", data=analytics)
+    except Exception as e:
+        return JSONResponse(status_code=400, content={
+            "message": str(e),
+            "data": None
+        })

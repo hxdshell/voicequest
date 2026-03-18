@@ -13,13 +13,13 @@ import {
 } from '@chakra-ui/react'
 import { Pencil, Trash2 } from 'lucide-react'
 import Mic from '../components/app/Mic'
-import { useNavigate } from '@tanstack/react-router'
 import CreateTask from '../components/app/CreateTask'
 import { client } from '../api'
 import { toaster } from '../components/ui/toaster'
 import StatusBadge from '../components/app/StatusBadge'
 import UpdateTask from '../components/app/UpdateTask'
 import { Tooltip } from '../components/ui/tooltip'
+import { useNavigate } from '@tanstack/react-router'
 
 export default function HomePage() {
   const [tasks, setTasks] = useState<Task[]>([])
