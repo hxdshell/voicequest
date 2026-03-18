@@ -7,7 +7,11 @@ interface Task {
   create_at: string
   status: number
 }
-
+type Trnascription = {
+  id: number
+  user_id: number
+  transcription: str
+}
 type Analytics = {
   total: number
   pending: number

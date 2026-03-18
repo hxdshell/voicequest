@@ -1,4 +1,4 @@
-from datetime import datetime, timedelta,timezone
+from datetime import datetime,timezone
 
 from sqlmodel import Session, select
 from app.db.models import Status, Task
@@ -21,6 +21,8 @@ class TaskRepo:
 
     def get_all_by_user(self,user_id: int) -> list[Task]:
         tasks = self.session.exec(select(Task).where(Task.user_id == user_id))
+        if(tasks is None):
+            return []
         return tasks
 
     def get_by_id(self, task_id: int, user_id) -> Task | None:

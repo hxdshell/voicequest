@@ -6,6 +6,7 @@ from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 from app.schema.schema import APIResponse, TaskAnalyticsResponse, TaskCreate, TaskUpdate
 from app.services.model_client import ModelClient
 from app.services.task_service import TaskService
+from app.services.transcript_service import TranscriptService
 from app.services.voice_task_service import VoiceTaskService
 from . import get_model_client, router
 from app.db.sqlite import SessionDep
@@ -52,6 +53,18 @@ async def get_all_tasks(request:Request, session: SessionDep, token: HTTPAuthori
     try:
         resp_tasks = service.get_all_task(request.state.user_id)
         return APIResponse(message="tasks fetched successfully", data=resp_tasks)
+    except Exception as e:
+        return JSONResponse(status_code=400, content={
+            "message": str(e),
+            "data": None
+        })
+    
+@router.get("/transcripts")
+async def get_all_tasks(request:Request, session: SessionDep, token: HTTPAuthorizationCredentials = Depends(auth_scheme)):
+    service = TranscriptService(session=session)
+    try:
+        resp_tasks = service.get_all_transcripts(request.state.user_id)
+        return APIResponse(message="transcripts fetched successfully", data=resp_tasks)
     except Exception as e:
         return JSONResponse(status_code=400, content={
             "message": str(e),
